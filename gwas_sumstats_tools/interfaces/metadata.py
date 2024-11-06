@@ -413,13 +413,15 @@ def get_file_metadata(in_file: Path, out_file: str, meta_dict: dict = {}) -> dic
         Metadata dict
     """
     inferred_meta_dict = {}
-    inferred_meta_dict['gwas_id'] = parse_accession_id(filename=in_file)
     inferred_meta_dict['data_file_name'] = Path(out_file).name
     inferred_meta_dict['file_type'] = 'GWAS-SSF v1.0'
     inferred_meta_dict['genome_assembly'] = GENOME_ASSEMBLY_MAPPINGS.get(parse_genome_assembly(filename=in_file), 'unknown')
     inferred_meta_dict['data_file_md5sum'] = get_md5sum(out_file) if Path(out_file).exists() else None
     inferred_meta_dict['date_metadata_last_modified'] = date.today()
-    inferred_meta_dict['gwas_catalog_api'] = GWAS_CAT_API_STUDIES_URL + parse_accession_id(filename=in_file)
+    gwas_id = parse_accession_id(filename=in_file)
+    if gwas_id is not None:
+        inferred_meta_dict['gwas_id'] = gwas_id
+        inferred_meta_dict['gwas_catalog_api'] = GWAS_CAT_API_STUDIES_URL + gwas_id
     for field, value in inferred_meta_dict.items():
         update_dict_if_not_set(meta_dict, field, value)
     return meta_dict
